@@ -41,7 +41,15 @@ const typesToKWs = {
     'object': tsUnknownKeyword
 };
 
-export const makeType = ({ type, properties, items, $ref, enum: _enum }, importSet): TSType => {
+type MType = {
+    type: string,
+    properties: any[],
+    items: any,
+    $ref: string,
+    enum: string[]
+};
+
+export const makeType = ({ type, properties, items, $ref, enum: _enum }: Partial<MType>, importSet): TSType => {
     if (properties) {
         return typeLit(properties.map(prop => {
             const sig = propSig(ident(prop.name), typeAnn(makeType(prop, importSet)));
@@ -64,6 +72,12 @@ export const makeType = ({ type, properties, items, $ref, enum: _enum }, importS
 export const makeTypeAlias = (type, importSet) =>
     exportNamed(typeAlias(ident(type.id), null, makeType(type, importSet)), []);
 
+export const makeContextParam = () => {
+    const contextParam = ident('context');
+    contextParam.typeAnnotation = typeAnn(typeRef(ident('Context')));
+    return contextParam;
+};
+
 export const makeImports = importSet => Array.from(importSet).map((source: string) =>
     importDecl([importNS(ident(source))], stringLiteral(`./${source}`)));
 
@@ -72,13 +86,11 @@ export const makeExportFn = ({ name, parameters, returns }, domain, importSet) =
 
     if (parameters) {
         const paramsParam = ident('param');
-        paramsParam.typeAnnotation = makeType({ properties: parameters }, importSet);
+        paramsParam.typeAnnotation = typeAnn(makeType({ properties: parameters }, importSet));
         fnParams.push(paramsParam);
     }
 
-    const contextParam = ident('context');
-    contextParam.typeAnnotation = typeRef(ident('Context'));
-    fnParams.push(contextParam);
+    fnParams.push(makeContextParam());
 
     const fn = arrowFunction(fnParams, fnCall(ident('send'), [
         stringLiteral(`${domain}.${name}`),
@@ -86,7 +98,7 @@ export const makeExportFn = ({ name, parameters, returns }, domain, importSet) =
         ident('context'),
     ]));
 
-    fn.returnType = typeRef(ident('Promise'), typeParams([tsUnknownKeyword()]));
+    fn.returnType = typeAnn(typeRef(ident('Promise'), typeParams([tsUnknownKeyword()])));
 
     return exportNamed(variable('const', [binding(ident(name), fn)]));
 };
