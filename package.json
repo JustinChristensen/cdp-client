@@ -1,0 +1,35 @@
+{
+  "name": "cdp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^7.5.3"
+  },
+  "bin": {
+    "gen_cdp": "./gen_cdp.js"
+  },
+  "scripts": {
+    "build-codegen": "tsc --module commonjs --outDir . --target esnext codegen/gen_cdp.ts",
+    "watch-codegen": "npm run build-codegen -- -w",
+    "build": "tsc",
+    "watch": "npm run build -- -w",
+    "lint": "eslint src",
+    "fix": "eslint --fix src"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/generator": "^7.15.0",
+    "@babel/parser": "^7.15.3",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/types": "^7.15.0",
+    "@types/ws": "^7.4.7",
+    "@types/yargs": "^17.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.30.0",
+    "@typescript-eslint/parser": "^4.30.0",
+    "devtools-protocol": "^0.0.901419",
+    "eslint": "^7.32.0",
+    "typescript": "^4.4.2",
+    "yargs": "^17.1.1"
+  }
+}
